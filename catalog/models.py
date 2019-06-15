@@ -57,10 +57,25 @@ class BookInstance(models.Model):
 	)
 
 	class Meta:
-		ordering = ['due_back', 'book']
+		ordering = ['book','due_back']
+
+	# def __str__(self):
+		# return '{0} ({1}) ({2})'.format(self.id, self.book.title, self.language.name)
 
 	def __str__(self):
-		return '{0} ({1}) ({2})'.format(self.id, self.book.title, self.language.name)
+		if (self.due_back):
+			return '{0} ({1}), status: {2}, Due back: {3}'.format(
+				self.book.title,
+				self.language.name,
+				self.get_status_display(),
+				self.due_back.strftime('%d %B %Y'),
+			)
+		else:
+			return '{0} ({1}), status: {2}'.format(
+				self.book.title,
+				self.language.name,
+				self.get_status_display()
+			)
 
 class Author(models.Model):
 	first_name = models.CharField(max_length=100)
