@@ -34,6 +34,11 @@ class Book(models.Model):
 	class Meta:
 		ordering = ['title']
 
+	def display_genre(self):
+		return ', '.join(genre.name for genre in self.genre.all()[:3])
+
+	display_genre.short_description = 'Genre'
+
 class BookInstance(models.Model):
 	id = models.UUIDField(primary_key=True, default=uuid.uuid4, help_text='Unique ID for this particular book across whole library')
 	book = models.ForeignKey('Book', on_delete=models.SET_NULL, null=True)
@@ -57,25 +62,26 @@ class BookInstance(models.Model):
 	)
 
 	class Meta:
-		ordering = ['book','due_back']
-
-	# def __str__(self):
-		# return '{0} ({1}) ({2})'.format(self.id, self.book.title, self.language.name)
+		ordering = ['book', 'status', 'due_back']
 
 	def __str__(self):
+		return '{0} ({1}) ({2})'.format(self.id, self.book.title, self.language.name)
+	'''
+	def __str__(self):
 		if (self.due_back):
-			return '{0} ({1}), status: {2}, Due back: {3}'.format(
+			return '{0} ({1}), Status: {2}, Due back: {3}'.format(
 				self.book.title,
 				self.language.name,
 				self.get_status_display(),
 				self.due_back.strftime('%d %B %Y'),
 			)
 		else:
-			return '{0} ({1}), status: {2}'.format(
+			return '{0} ({1}), Status: {2}'.format(
 				self.book.title,
 				self.language.name,
 				self.get_status_display()
 			)
+		'''
 
 class Author(models.Model):
 	first_name = models.CharField(max_length=100)
