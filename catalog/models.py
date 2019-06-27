@@ -1,8 +1,8 @@
 from django.db import models
 from django.urls import reverse
 import uuid
-
-# Create your models here.
+from django.contrib.auth.models import User
+from datetime import date
 
 class Language(models.Model):
 	name = models.CharField(max_length=15, help_text='Book language')
@@ -62,27 +62,20 @@ class BookInstance(models.Model):
 		help_text='Book availability',
 	)
 
+	borrower = models.ForeignKey(User, on_delete = models.SET_NULL, null=True, blank=True)
+
 	class Meta:
 		ordering = ['book', 'status', 'due_back']
+		permissions = (("can_mark_returned", "Set book as returned"),)
 
+	@property
+	def is_overdue(self):
+		if self.due_back and date.today() > self.due_back:
+			return True
+		return False
+	
 	def __str__(self):
 		return '{0} ({1}) ({2})'.format(self.id, self.book.title, self.language.name)
-	'''
-	def __str__(self):
-		if (self.due_back):
-			return '{0} ({1}), Status: {2}, Due back: {3}'.format(
-				self.book.title,
-				self.language.name,
-				self.get_status_display(),
-				self.due_back.strftime('%d %B %Y'),
-			)
-		else:
-			return '{0} ({1}), Status: {2}'.format(
-				self.book.title,
-				self.language.name,
-				self.get_status_display()
-			)
-		'''
 
 class Author(models.Model):
 	first_name = models.CharField(max_length=100)
